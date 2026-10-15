@@ -38,6 +38,43 @@ function executeQuery(db, query) {
   }
 }
 
+// Récupère la liste de toutes les tables et leur contenu pour l'illustration
+function inspectDatabaseTables(db) {
+  try {
+    const tablesRes = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';");
+    if (!tablesRes || tablesRes.length === 0) {
+      return [];
+    }
+
+    const tableNames = tablesRes[0].values.map(row => row[0]);
+    const tablesInfo = [];
+
+    for (const tableName of tableNames) {
+      const dataRes = db.exec(`SELECT * FROM ${tableName} LIMIT 10;`);
+      if (dataRes && dataRes.length > 0) {
+        tablesInfo.push({
+          name: tableName,
+          columns: dataRes[0].columns,
+          values: dataRes[0].values
+        });
+      } else {
+        // Table vide, on inspecte quand même ses colonnes via PRAGMA
+        const colInfo = db.exec(`PRAGMA table_info(${tableName});`);
+        const columns = colInfo && colInfo.length > 0 ? colInfo[0].values.map(r => r[1]) : [];
+        tablesInfo.push({
+          name: tableName,
+          columns,
+          values: []
+        });
+      }
+    }
+
+    return tablesInfo;
+  } catch (err) {
+    return [];
+  }
+}
+
 // Comparer deux résultats de requêtes
 function compareResults(expected, actual, orderMatters = false) {
   if (!actual.success) {
@@ -92,5 +129,6 @@ function compareResults(expected, actual, orderMatters = false) {
 module.exports = {
   createDatabase,
   executeQuery,
+  inspectDatabaseTables,
   compareResults
 };

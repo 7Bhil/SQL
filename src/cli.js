@@ -3,7 +3,7 @@
 const inquirer = require('inquirer');
 const chalk = require('chalk');
 const exercises = require('./exercises');
-const { createDatabase, executeQuery, compareResults } = require('./db');
+const { createDatabase, executeQuery, inspectDatabaseTables, compareResults } = require('./db');
 const { renderTable } = require('./formatter');
 const {
   getSessionUser,
@@ -357,6 +357,21 @@ async function startExercise(exerciseId, isSandbox = false) {
 
     console.log(chalk.cyan.bold('🎯 OBJECTIF DE L\'EXERCICE :'));
     console.log(chalk.bold.white(exercise.task));
+    console.log('\n' + chalk.gray('─'.repeat(63)) + '\n');
+
+    // Affichage des tables et données disponibles pour l'exercice
+    const previewDb = await createDatabase(exercise.setupSql);
+    const tablesInfo = inspectDatabaseTables(previewDb);
+
+    console.log(chalk.hex('#FFA500').bold('📦 TABLES ET DONNÉES DISPONIBLES :'));
+    if (tablesInfo.length === 0) {
+      console.log(chalk.gray('(Aucune table pré-existante)'));
+    } else {
+      for (const t of tablesInfo) {
+        console.log(chalk.blue.bold(`\nTable: `) + chalk.yellow.bold(t.name));
+        console.log(renderTable(t.columns, t.values, 5));
+      }
+    }
     console.log('\n' + chalk.gray('─'.repeat(63)));
 
     console.log(chalk.italic.gray("Commandes : ':hint' pour un indice | ':solution' pour la réponse | ':back' pour quitter"));
