@@ -1,0 +1,22 @@
+{
+  "name": "sql",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/cli.js",
+  "bin": {
+    "sql-master": "./src/cli.js"
+  },
+  "scripts": {
+    "start": "node src/cli.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "chalk": "^5.6.2",
+    "cli-table3": "^0.6.5",
+    "inquirer": "^14.2.3",
+    "sql.js": "^1.15.0"
+  }
+}
