@@ -592,5 +592,126 @@ INNER JOIN ventes_totales ON commerciaux.id = ventes_totales.commercial_id;`,
       "Utilisez ROW_NUMBER() OVER (PARTITION BY departement ORDER BY salaire DESC) AS rang.",
       "Ne pas utiliser de GROUP BY classique car nous voulons conserver toutes les lignes individuelles."
     ]
+  },
+  {
+    id: 21,
+    title: "Insertion de données avec INSERT INTO",
+    category: "8. Modification de Données (DML)",
+    lesson: `Pour insérer de nouvelles lignes dans une table, on utilise la commande INSERT INTO :
+Syntaxe :
+  INSERT INTO table (colonne1, colonne2) VALUES (valeur1, valeur2);
+Puis on peut vérifier avec un SELECT.`,
+    task: "Insérez un nouvel utilisateur nommé 'Lucas', habitant à 'Bordeaux', âgé de 26 ans dans la table `membres`, puis affichez tous les membres triés par nom.",
+    setupSql: `
+      CREATE TABLE membres (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nom TEXT,
+        ville TEXT,
+        age INTEGER
+      );
+      INSERT INTO membres (nom, ville, age) VALUES ('Alice', 'Paris', 25), ('Bob', 'Lyon', 30);
+    `,
+    expectedQuery: "INSERT INTO membres (nom, ville, age) VALUES ('Lucas', 'Bordeaux', 26); SELECT * FROM membres ORDER BY nom;",
+    orderMatters: true,
+    hints: [
+      "Exécutez l'INSERT suivi de SELECT * FROM membres ORDER BY nom;.",
+      "Syntaxe : INSERT INTO membres (nom, ville, age) VALUES ('Lucas', 'Bordeaux', 26); SELECT * FROM membres ORDER BY nom;"
+    ]
+  },
+  {
+    id: 22,
+    title: "Mise à jour ciblée avec UPDATE ... WHERE",
+    category: "8. Modification de Données (DML)",
+    lesson: `Pour mettre à jour des données existantes, on utilise UPDATE avec SET.
+ATTENTION : n'oubliez JAMAIS la clause WHERE, sinon TOUTES les lignes de la table seront modifiées !
+Syntaxe :
+  UPDATE clients SET statut = 'VIP' WHERE depenses > 1000;`,
+    task: "Augmentez le salaire de tous les employés du département 'Tech' de 500 euros, puis affichez tous les employés par salaire décroissant.",
+    setupSql: `
+      CREATE TABLE employes (
+        id INTEGER PRIMARY KEY,
+        nom TEXT,
+        departement TEXT,
+        salaire REAL
+      );
+      INSERT INTO employes VALUES 
+        (1, 'Alice', 'Tech', 3500),
+        (2, 'Bob', 'RH', 2800),
+        (3, 'Charlie', 'Tech', 4000);
+    `,
+    expectedQuery: "UPDATE employes SET salaire = salaire + 500 WHERE departement = 'Tech'; SELECT * FROM employes ORDER BY salaire DESC;",
+    orderMatters: true,
+    hints: [
+      "Utilisez UPDATE employes SET salaire = salaire + 500 WHERE departement = 'Tech';",
+      "Puis affichez avec SELECT * FROM employes ORDER BY salaire DESC;"
+    ]
+  },
+  {
+    id: 23,
+    title: "Suppression contrôlée avec DELETE FROM",
+    category: "8. Modification de Données (DML)",
+    lesson: `Pour supprimer des lignes, on utilise DELETE FROM table WHERE condition.
+Tout comme UPDATE, omettre le WHERE supprime l'intégralité des données de la table !`,
+    task: "Supprimez tous les produits dont le stock est égal à 0, puis affichez la liste restante des produits triés par id.",
+    setupSql: `
+      CREATE TABLE inventaire (
+        id INTEGER PRIMARY KEY,
+        nom TEXT,
+        stock INTEGER
+      );
+      INSERT INTO inventaire VALUES 
+        (1, 'Clavier', 5),
+        (2, 'Souris HS', 0),
+        (3, 'Écran', 3),
+        (4, 'Vieux Câble', 0);
+    `,
+    expectedQuery: "DELETE FROM inventaire WHERE stock = 0; SELECT * FROM inventaire ORDER BY id;",
+    orderMatters: true,
+    hints: [
+      "Supprimez avec DELETE FROM inventaire WHERE stock = 0;",
+      "Puis affichez avec SELECT * FROM inventaire ORDER BY id;"
+    ]
+  },
+  {
+    id: 24,
+    title: "Création de table avec CREATE TABLE et contraintes",
+    category: "9. Définition de Schéma (DDL)",
+    lesson: `La commande CREATE TABLE définit la structure, les types de colonnes et les contraintes :
+- PRIMARY KEY : identifiant unique
+- NOT NULL : champ obligatoire
+- UNIQUE : valeur non duplicable
+Exemple :
+  CREATE TABLE pays (id INTEGER PRIMARY KEY, nom TEXT NOT NULL UNIQUE);`,
+    task: "Créez une table nommée `abonnements` avec 3 colonnes : `id` (INTEGER PRIMARY KEY), `formule` (TEXT NOT NULL), et `prix` (REAL). Insérez ensuite la ligne (1, 'Premium', 19.99) et affichez la table.",
+    setupSql: "",
+    expectedQuery: "CREATE TABLE abonnements (id INTEGER PRIMARY KEY, formule TEXT NOT NULL, prix REAL); INSERT INTO abonnements VALUES (1, 'Premium', 19.99); SELECT * FROM abonnements;",
+    orderMatters: false,
+    hints: [
+      "CREATE TABLE abonnements (id INTEGER PRIMARY KEY, formule TEXT NOT NULL, prix REAL);",
+      "Puis insérez avec INSERT INTO abonnements VALUES (1, 'Premium', 19.99); et sélectionnez tout."
+    ]
+  },
+  {
+    id: 25,
+    title: "Évolution de schéma avec ALTER TABLE",
+    category: "9. Définition de Schéma (DDL)",
+    lesson: `Quand une table existe déjà en production, on ne la recrée pas : on utilise ALTER TABLE pour ajouter une nouvelle colonne.
+Syntaxe :
+  ALTER TABLE utilisateurs ADD COLUMN pays TEXT DEFAULT 'France';`,
+    task: "Ajoutez une nouvelle colonne `actif` de type INTEGER avec la valeur par défaut 1 à la table `comptes`, puis affichez tous les comptes.",
+    setupSql: `
+      CREATE TABLE comptes (
+        id INTEGER PRIMARY KEY,
+        identifiant TEXT
+      );
+      INSERT INTO comptes VALUES (1, 'admin'), (2, 'guest');
+    `,
+    expectedQuery: "ALTER TABLE comptes ADD COLUMN actif INTEGER DEFAULT 1; SELECT * FROM comptes;",
+    orderMatters: false,
+    hints: [
+      "Utilisez ALTER TABLE comptes ADD COLUMN actif INTEGER DEFAULT 1;",
+      "Puis faites un SELECT * FROM comptes;"
+    ]
   }
 ];
+

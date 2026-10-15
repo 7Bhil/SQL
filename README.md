@@ -1,46 +1,74 @@
 # 🏆 SQL Master CLI
 
-Un programme interactif en ligne de commande (CLI) pour apprendre et maîtriser **SQL de A à Z** à travers une suite d'exercices pratiques progressifs, un système de comptes et une clé chiffrée anti-triche prête pour le Leaderboard.
+[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
+[![Node: >=18](https://img.shields.io/badge/Node-%3E%3D18-brightgreen.svg)](https://nodejs.org/)
+[![SQLite: In--Memory](https://img.shields.io/badge/Database-SQLite%20(sql.js)-orange.svg)](https://github.com/sql-js/sql.js)
+[![Stars](https://img.shields.io/github/stars/7Bhil/SQL.git?style=social)](https://github.com/7Bhil/SQL.git)
+
+> **Maîtrisez SQL de A à Z directement dans votre terminal !**  
+> Une application CLI gamifiée, interactive et complète avec 25 niveaux progressifs, moteur SQLite embarqué, navigation au clavier, système de comptes, trophées et clé chiffrée anti-triche prête pour le Leaderboard.
 
 ---
 
-## 🚀 Démarrage
-
-Dans votre terminal, lancez :
+## 🚀 Démarrage en 1 seconde
 
 ```bash
+# Cloner le dépôt
+git clone https://github.com/7Bhil/SQL.git
+cd SQL
+
+# Installer les dépendances
+npm install
+
+# Lancer l'aventure
 npm start
 ```
-*(ou `./src/cli.js`)*
 
 ---
 
-## 🌟 Nouvelles fonctionnalités
+## ✨ Fonctionnalités phares
 
-### 1. 👤 Système de Comptes & Profils
-- **Création de compte** & **Connexion** avec mot de passe haché par dérivation de clé sécurisée (`PBKDF2-SHA512`).
-- Session locale persistée : vous restez connecté tant que vous ne vous déconnectez pas explicitement.
-- Chaque niveau validé sur votre profil officiel vous rapporte **+100 points**.
-
-### 2. 🔐 Clé Chiffrée Anti-Triche (Passeport Leaderboard)
-- Accessible dans votre profil : **`SQLPASS.<iv>.<données_chiffrées>.<hmac>`**.
-- Chiffrée avec **AES-256-CBC** et signée avec un **HMAC-SHA256**.
-- **Anti-triche** : impossible de falsifier ses scores ou ses niveaux sans briser la signature d'authenticité.
-- Prête pour synchroniser votre rang sur le futur Leaderboard mondial ou exporter votre progression !
-
-### 3. 🔓 Mode Sandbox (Accès Libre)
-- Accessible depuis l'accueil ou le menu principal.
-- **Code secret** : `0000`
-- Débloque **l'accès immédiat aux 20 niveaux sans prérequis** pour s'entraîner ou tester sans contrainte.
-- *Remarque* : Les niveaux réussis en Sandbox ne modifient pas vos scores officiels.
+- **⌨️ Expérience Terminal de Pro** :
+  - **Touche `Échap` (`ESC`)** : retour instantané en arrière à tout moment.
+  - **Flèches `Haut ⬆` et `Bas ⬇`** : navigation dans l'historique de vos requêtes comme sous `bash` ou `psql`.
+  - **Saisie Multi-Lignes** : appuyez sur `Entrée` pour sauter une ligne, terminez par `;` pour exécuter.
+- **👀 Aperçu automatique des Tables & Schémas** :
+  - Avant chaque consigne, toutes les tables impliquées et leurs premières lignes de données sont inspectées et affichées sous forme de tableau CLI clair.
+- **🏅 Système de Trophées & Badges** :
+  - 🐣 *Premier Pas SQL*
+  - 🔍 *Ninja du Filtrage*
+  - 🔗 *Maître des Jointures*
+  - ⚡ *Éclair de Génie* (résolution en moins de 10 secondes)
+  - 👑 *Grand Maître SQL* (terminer les 25 niveaux)
+- **📊 Progression & Statistiques en direct** :
+  - Barre de progression visuelle : `[████████░░░░░░░░░░░░░░░░░] 32%`.
+  - Nombre total de requêtes tentées, chronomètre et indices utilisés.
+- **🔐 Clé Chiffrée Anti-Triche (Passeport Leaderboard)** :
+  - Chiffrement **AES-256-CBC** avec signature d'intégrité **HMAC-SHA256**.
+  - Clé portable contenant scores et niveaux validés, infalsifiable à la main.
+- **🔓 Mode Sandbox (Accès Libre)** :
+  - Code secret : **`0000`**
+  - Permet de sauter immédiatement vers n'importe lequel des 25 niveaux sans bloquer.
 
 ---
 
-## 📚 Parcours pédagogique (20 niveaux de A à Z)
-1. **Les Bases** : `SELECT`, colonnes ciblées, alias `AS`, dédoublonnage `DISTINCT`.
-2. **Filtrage** : `WHERE`, comparateurs, `AND`/`OR`, intervalles `BETWEEN`, listes `IN`, motifs `LIKE`, gestion du `NULL`.
-3. **Tri & Pagination** : `ORDER BY`, `LIMIT`, `OFFSET`.
-4. **Agrégations & Groupes** : `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `GROUP BY`, `HAVING`.
-5. **Jointures** : `INNER JOIN`, `LEFT JOIN`, recherche d'enregistrements orphelins.
-6. **Sous-requêtes & Conditions** : Subqueries, `CASE WHEN ... THEN ... ELSE ... END`.
-7. **Concepts Pro Avancés** : Common Table Expressions (`WITH`), fonctions de fenêtrage (`ROW_NUMBER() OVER (...)`).
+## 📚 Parcours de A à Z (25 Niveaux)
+
+| Niveaux | Module | Notions clés abordées |
+|---|---|---|
+| **1 - 3** | **1. Les Bases** | `SELECT`, projection de colonnes, alias `AS`, `DISTINCT` |
+| **4 - 8** | **2. Filtrage & Conditions** | `WHERE`, opérateurs (`=, >, <=`), `AND`/`OR`, `BETWEEN`, `IN`, `LIKE`, `IS NULL` |
+| **9 - 10** | **3. Tri & Pagination** | `ORDER BY (ASC/DESC)`, `LIMIT`, `OFFSET` |
+| **11 - 13** | **4. Agrégations & Groupes** | `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `GROUP BY`, `HAVING` |
+| **14 - 16** | **5. Les Jointures** | `INNER JOIN`, `LEFT JOIN`, détection d'orphelins avec `IS NULL` |
+| **17 - 18** | **6. Sous-requêtes & Logique** | Sous-requêtes dans `WHERE` (`Subqueries`), `CASE WHEN ... THEN ... END` |
+| **19 - 20** | **7. Concepts Avancés** | CTE (`WITH`), Fonctions de Fenêtrage (`ROW_NUMBER() OVER (...)`) |
+| **21 - 23** | **8. Modification de Données (DML)** | `INSERT INTO`, `UPDATE ... WHERE`, `DELETE FROM ... WHERE` |
+| **24 - 25** | **9. Définition de Schéma (DDL)** | `CREATE TABLE` (types & contraintes), `ALTER TABLE ADD COLUMN` |
+
+---
+
+## ⭐ Soutenez le projet !
+
+Si vous appréciez ce projet ou qu'il vous a aidé à progresser en SQL :
+👉 **Laissez une étoile (Star ⭐) sur le [dépôt GitHub](https://github.com/7Bhil/SQL.git) !** Cela aide énormément à faire grandir le projet.

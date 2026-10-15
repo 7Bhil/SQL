@@ -26,6 +26,15 @@ function renderTable(columns, values, maxRows = 20) {
   return output;
 }
 
+function renderProgressBar(current, total, width = 20) {
+  const percentage = Math.min(100, Math.round((current / total) * 100));
+  const filled = Math.round((current / total) * width);
+  const empty = width - filled;
+  const bar = chalk.green('█'.repeat(filled)) + chalk.gray('░'.repeat(empty));
+  return `[${bar}] ${chalk.yellow.bold(percentage + '%')}`;
+}
+
 module.exports = {
-  renderTable
+  renderTable,
+  renderProgressBar
 };

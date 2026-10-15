@@ -4,15 +4,18 @@ const inquirer = require('inquirer');
 const chalk = require('chalk');
 const exercises = require('./exercises');
 const { createDatabase, executeQuery, inspectDatabaseTables, compareResults } = require('./db');
-const { renderTable } = require('./formatter');
+const { renderTable, renderProgressBar } = require('./formatter');
 const {
   getSessionUser,
   registerUser,
   loginUser,
   logout,
+  recordUserStats,
   markUserLevelCompleted,
+  saveUserBadges,
   getUserPassport
 } = require('./auth');
+const { BADGES, checkAndAwardBadges } = require('./badges');
 const { promptSqlQuery } = require('./prompt');
 
 const SANDBOX_PASSWORD = '0000';
@@ -28,11 +31,14 @@ function printHeader(currentUser = null) {
 ║           Maîtrisez SQL de A à Z pas à pas en terminal        ║
 ╚═══════════════════════════════════════════════════════════════╝`));
   if (currentUser) {
+    const badgesCount = currentUser.badges ? currentUser.badges.length : 0;
     console.log(
       chalk.white(' Connecté : ') +
       chalk.green.bold(currentUser.username) +
       chalk.white(' | Score : ') +
       chalk.yellow.bold(`${currentUser.score || 0} pts`) +
+      chalk.white(' | Trophées : ') +
+      chalk.magenta.bold(`${badgesCount}/${BADGES.length}`) +
       chalk.white(' | Niveaux : ') +
       chalk.cyan.bold(`${currentUser.completedLevels ? currentUser.completedLevels.length : 0}/${exercises.length}\n`)
     );
@@ -166,16 +172,16 @@ async function showMainMenu() {
 
   const total = exercises.length;
   const done = user.completedLevels ? user.completedLevels.length : 0;
-  const percentage = Math.round((done / total) * 100);
+  const progressBar = renderProgressBar(done, total, 25);
 
-  console.log(chalk.white(`Progression officielle : `) + chalk.green.bold(`${done}/${total} (${percentage}%)`));
+  console.log(chalk.white(`Progression officielle : `) + progressBar + chalk.green.bold(` (${done}/${total})`));
   console.log(chalk.gray('---------------------------------------------------------------\n'));
 
   const choices = [
     { name: `▶  Continuer l'aventure (Niveau ${Math.min(user.currentLevel || 1, total)})`, value: 'continue' },
-    { name: `📋 Choisir un niveau de mon parcours`, value: 'list' },
+    { name: `📋 Choisir un niveau de mon parcours (25 Niveaux)`, value: 'list' },
     { name: `🔓 Mode Sandbox (Tester n'importe quel niveau sans sauvegarde)`, value: 'sandbox' },
-    { name: `👤 Mon Profil & Clé Chiffrée (Passeport)`, value: 'profile' },
+    { name: `👤 Mon Profil, Trophées & Clé Chiffrée`, value: 'profile' },
     { name: `🚪 Se déconnecter`, value: 'logout' },
     { name: `❌ Quitter le programme`, value: 'exit' }
   ];
@@ -236,7 +242,7 @@ async function showMainMenu() {
 }
 
 // -------------------------------------------------------------
-// ÉCRAN PROFIL & CLÉ CHIFFRÉE
+// ÉCRAN PROFIL, STATS & TROPHÉES
 // -------------------------------------------------------------
 async function showProfile() {
   clearScreen();
@@ -245,12 +251,27 @@ async function showProfile() {
 
   const passport = getUserPassport(user);
   const doneCount = user.completedLevels ? user.completedLevels.length : 0;
+  const stats = user.stats || { totalQueries: 0, hintsUsed: 0 };
+  const userBadges = user.badges || [];
 
   console.log(chalk.bgHex('#223344').white.bold(' 👤 FICHE DE PROFIL JOUEUR '));
   console.log(chalk.white(` • Pseudo            : `) + chalk.cyan.bold(user.username));
   console.log(chalk.white(` • Score Total       : `) + chalk.yellow.bold(`${user.score || 0} points`));
   console.log(chalk.white(` • Niveaux réussis   : `) + chalk.green.bold(`${doneCount} / ${exercises.length}`));
+  console.log(chalk.white(` • Requêtes tentées  : `) + chalk.blue.bold(stats.totalQueries));
+  console.log(chalk.white(` • Indices utilisés  : `) + chalk.magenta.bold(stats.hintsUsed));
   console.log(chalk.white(` • Date de création  : `) + chalk.gray(new Date(user.createdAt).toLocaleString()));
+  console.log('\n' + chalk.gray('─'.repeat(63)) + '\n');
+
+  console.log(chalk.hex('#FFD700').bold('🏆 TROPHÉES & BADGES DÉBLOQUÉS :'));
+  for (const b of BADGES) {
+    const unlocked = userBadges.includes(b.id);
+    if (unlocked) {
+      console.log(chalk.green.bold(`  ✔ ${b.name}`) + chalk.white(` - ${b.description}`));
+    } else {
+      console.log(chalk.gray(`  ○ 🔒 ${b.name} - ${b.description}`));
+    }
+  }
   console.log('\n' + chalk.gray('─'.repeat(63)) + '\n');
 
   console.log(chalk.magenta.bold('🔐 VOTRE CLÉ CHIFFRÉE ANTI-TRICHE (PASSEPORT LEADERBOARD) :'));
@@ -339,6 +360,7 @@ async function startExercise(exerciseId, isSandbox = false) {
 
   let hintIndex = 0;
   let running = true;
+  const startTime = Date.now();
 
   while (running) {
     clearScreen();
@@ -366,7 +388,7 @@ async function startExercise(exerciseId, isSandbox = false) {
 
     console.log(chalk.hex('#FFA500').bold('📦 TABLES ET DONNÉES DISPONIBLES :'));
     if (tablesInfo.length === 0) {
-      console.log(chalk.gray('(Aucune table pré-existante)'));
+      console.log(chalk.gray('(Aucune table pré-existante - à créer avec CREATE TABLE)'));
     } else {
       for (const t of tablesInfo) {
         console.log(chalk.blue.bold(`\nTable: `) + chalk.yellow.bold(t.name));
@@ -375,8 +397,8 @@ async function startExercise(exerciseId, isSandbox = false) {
     }
     console.log('\n' + chalk.gray('─'.repeat(63)));
 
-    console.log(chalk.italic.gray("Astuces : [Échap] ou ':back' = Retour | Entrée = Nouvelle ligne | Terminez par ';' pour exécuter"));
-    console.log(chalk.italic.gray("Aide : ':hint' pour un indice | ':solution' pour la réponse officielle\n"));
+    console.log(chalk.italic.gray("Astuces : [Échap] ou ':back' = Retour | Flèches ⬆/⬇ = Historique | Entrée = Nouvelle ligne | ';' = Exécuter"));
+    console.log(chalk.italic.gray("Aide    : ':hint' pour un indice | ':solution' pour la réponse officielle\n"));
 
     const inputResult = await promptSqlQuery('sql> ');
 
@@ -393,6 +415,9 @@ async function startExercise(exerciseId, isSandbox = false) {
     const trimmed = inputResult.query.trim();
 
     if (trimmed.toLowerCase() === ':hint') {
+      if (user && !isSandbox) {
+        recordUserStats(user.username, { hints: 1 });
+      }
       if (hintIndex < exercise.hints.length) {
         console.log(chalk.yellow(`\n💡 INDICE ${hintIndex + 1} : `) + exercise.hints[hintIndex]);
         hintIndex++;
@@ -412,6 +437,10 @@ async function startExercise(exerciseId, isSandbox = false) {
 
     if (!trimmed) {
       continue;
+    }
+
+    if (user && !isSandbox) {
+      recordUserStats(user.username, { queries: 1 });
     }
 
     // Tester la requête
@@ -434,11 +463,23 @@ async function startExercise(exerciseId, isSandbox = false) {
     const check = compareResults(expectedRes, userRes, exercise.orderMatters);
 
     if (check.matches) {
-      console.log(chalk.green.bold('\n🎉 BRAVO ! Défi validé avec succès ! 🎉\n'));
+      const solveTimeSeconds = Math.round((Date.now() - startTime) / 1000);
+      console.log(chalk.green.bold(`\n🎉 BRAVO ! Défi validé avec succès en ${solveTimeSeconds} secondes ! 🎉\n`));
 
       if (!isSandbox && user) {
         markUserLevelCompleted(user.username, exercise.id, 100);
         console.log(chalk.yellow('⭐ +100 points ajoutés à votre profil officiel !'));
+
+        // Vérifier les badges débloqués
+        const freshUser = getSessionUser();
+        const newBadges = checkAndAwardBadges(freshUser, exercise.id, solveTimeSeconds);
+        if (newBadges.length > 0) {
+          saveUserBadges(freshUser.username, freshUser.badges);
+          for (const nb of newBadges) {
+            console.log(chalk.bgHex('#FFD700').black.bold(` 🏅 NOUVEAU TROPHÉE DÉBLOQUÉ : ${nb.name} `));
+            console.log(chalk.yellow(`   ${nb.description}\n`));
+          }
+        }
       } else {
         console.log(chalk.gray('(Mode Sandbox actif : aucune modification de progression/score)'));
       }
@@ -466,7 +507,7 @@ async function startExercise(exerciseId, isSandbox = false) {
           return showExerciseList(isSandbox);
         }
       } else {
-        console.log(chalk.yellow.bold('🏆 FÉLICITATIONS ! Vous avez terminé TOUS les niveaux de SQL Master ! 🎓\n'));
+        console.log(chalk.yellow.bold('🏆 FÉLICITATIONS ! Vous avez terminé TOUS les 25 niveaux de SQL Master ! 🎓\n'));
         await waitKey();
         running = false;
         return isSandbox ? showExerciseList(true) : showMainMenu();

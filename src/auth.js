@@ -44,6 +44,11 @@ function registerUser(username, password) {
     score: 0,
     currentLevel: 1,
     completedLevels: [],
+    badges: [],
+    stats: {
+      totalQueries: 0,
+      hintsUsed: 0
+    },
     createdAt: new Date().toISOString()
   };
 
@@ -94,10 +99,28 @@ function logout() {
   }
 }
 
+function recordUserStats(username, { queries = 0, hints = 0 }) {
+  const users = loadUsers();
+  const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+  if (!user) return null;
+
+  if (!user.stats) {
+    user.stats = { totalQueries: 0, hintsUsed: 0 };
+  }
+  user.stats.totalQueries = (user.stats.totalQueries || 0) + queries;
+  user.stats.hintsUsed = (user.stats.hintsUsed || 0) + hints;
+
+  saveUsers(users);
+  return user;
+}
+
 function markUserLevelCompleted(username, levelId, points = 100) {
   const users = loadUsers();
   const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
   if (!user) return null;
+
+  if (!user.completedLevels) user.completedLevels = [];
+  if (!user.badges) user.badges = [];
 
   if (!user.completedLevels.includes(levelId)) {
     user.completedLevels.push(levelId);
@@ -107,6 +130,16 @@ function markUserLevelCompleted(username, levelId, points = 100) {
     user.currentLevel = levelId + 1;
   }
 
+  saveUsers(users);
+  return user;
+}
+
+function saveUserBadges(username, badges) {
+  const users = loadUsers();
+  const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+  if (!user) return null;
+
+  user.badges = badges;
   saveUsers(users);
   return user;
 }
@@ -122,6 +155,8 @@ module.exports = {
   getSessionUser,
   setSession,
   logout,
+  recordUserStats,
   markUserLevelCompleted,
+  saveUserBadges,
   getUserPassport
 };
