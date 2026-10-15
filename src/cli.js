@@ -13,6 +13,7 @@ const {
   markUserLevelCompleted,
   getUserPassport
 } = require('./auth');
+const { promptSqlQuery } = require('./prompt');
 
 const SANDBOX_PASSWORD = '0000';
 
@@ -374,19 +375,12 @@ async function startExercise(exerciseId, isSandbox = false) {
     }
     console.log('\n' + chalk.gray('─'.repeat(63)));
 
-    console.log(chalk.italic.gray("Commandes : ':hint' pour un indice | ':solution' pour la réponse | ':back' pour quitter"));
+    console.log(chalk.italic.gray("Astuces : [Échap] ou ':back' = Retour | Entrée = Nouvelle ligne | Terminez par ';' pour exécuter"));
+    console.log(chalk.italic.gray("Aide : ':hint' pour un indice | ':solution' pour la réponse officielle\n"));
 
-    const { query } = await inquirer.prompt([
-      {
-        type: 'input',
-        name: 'query',
-        message: chalk.green.bold('sql> ')
-      }
-    ]);
+    const inputResult = await promptSqlQuery('sql> ');
 
-    const trimmed = query.trim();
-
-    if (trimmed.toLowerCase() === ':back') {
+    if (inputResult.action === 'escape' || inputResult.query.trim().toLowerCase() === ':back') {
       running = false;
       if (isSandbox) {
         await showExerciseList(true);
@@ -395,6 +389,8 @@ async function startExercise(exerciseId, isSandbox = false) {
       }
       return;
     }
+
+    const trimmed = inputResult.query.trim();
 
     if (trimmed.toLowerCase() === ':hint') {
       if (hintIndex < exercise.hints.length) {
