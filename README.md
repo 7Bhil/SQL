@@ -1,49 +1,46 @@
 # 🏆 SQL Master CLI
 
-Un programme interactif en ligne de commande (CLI) pour apprendre et maîtriser **SQL de A à Z** à travers une suite d'exercices pratiques progressifs.
+Un programme interactif en ligne de commande (CLI) pour apprendre et maîtriser **SQL de A à Z** à travers une suite d'exercices pratiques progressifs, un système de comptes et une clé chiffrée anti-triche prête pour le Leaderboard.
 
 ---
 
-## 🚀 Démarrage rapide
+## 🚀 Démarrage
 
-Dans votre terminal, exécutez simplement :
+Dans votre terminal, lancez :
 
 ```bash
 npm start
 ```
-
-ou directement :
-
-```bash
-./src/cli.js
-```
+*(ou `./src/cli.js`)*
 
 ---
 
-## ✨ Fonctionnalités incluses
+## 🌟 Nouvelles fonctionnalités
 
-1. **20 Niveaux structurés de A à Z** :
-   - **Niveaux 1 à 3** : Les bases (`SELECT`, projections de colonnes ciblées, `DISTINCT`)
-   - **Niveaux 4 à 8** : Filtrage (`WHERE`, opérateurs de comparaison, `AND` / `OR`, `BETWEEN`, `IN`, motifs textuels avec `LIKE`, `IS NULL`)
-   - **Niveaux 9 à 10** : Tri et pagination (`ORDER BY`, `LIMIT`, `OFFSET`)
-   - **Niveaux 11 à 13** : Agrégations et groupements (`COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `GROUP BY`, filtrage avec `HAVING`)
-   - **Niveaux 14 à 16** : Jointures (`INNER JOIN`, `LEFT JOIN`, détection de données orphelines `LEFT JOIN + IS NULL`)
-   - **Niveaux 17 à 18** : Sous-requêtes imbriquées (Subqueries) & logiques conditionnelles (`CASE WHEN ... THEN ... ELSE ... END`)
-   - **Niveaux 19 à 20** : Concepts avancés du monde pro (CTE `WITH`, Fonctions de fenêtrage `ROW_NUMBER() OVER (PARTITION BY ... ORDER BY ...)`)
+### 1. 👤 Système de Comptes & Profils
+- **Création de compte** & **Connexion** avec mot de passe haché par dérivation de clé sécurisée (`PBKDF2-SHA512`).
+- Session locale persistée : vous restez connecté tant que vous ne vous déconnectez pas explicitement.
+- Chaque niveau validé sur votre profil officiel vous rapporte **+100 points**.
 
-2. **REPL Interactif gamifié** :
-   - Saisissez vos requêtes directement dans le prompt `sql> `.
-   - Exécution immédiate en mémoire avec moteur SQLite embarqué (aucun serveur lourd à configurer).
+### 2. 🔐 Clé Chiffrée Anti-Triche (Passeport Leaderboard)
+- Accessible dans votre profil : **`SQLPASS.<iv>.<données_chiffrées>.<hmac>`**.
+- Chiffrée avec **AES-256-CBC** et signée avec un **HMAC-SHA256**.
+- **Anti-triche** : impossible de falsifier ses scores ou ses niveaux sans briser la signature d'authenticité.
+- Prête pour synchroniser votre rang sur le futur Leaderboard mondial ou exporter votre progression !
 
-3. **Comparaison visuelle en tableau** :
-   - Tableaux clairs comparant le **Résultat obtenu** face au **Résultat attendu**.
-   - Validation automatique des valeurs, du nombre de lignes et du respect de l'ordre quand exigé.
+### 3. 🔓 Mode Sandbox (Accès Libre)
+- Accessible depuis l'accueil ou le menu principal.
+- **Code secret** : `0000`
+- Débloque **l'accès immédiat aux 20 niveaux sans prérequis** pour s'entraîner ou tester sans contrainte.
+- *Remarque* : Les niveaux réussis en Sandbox ne modifient pas vos scores officiels.
 
-4. **Système d'aide & anti-blocage** :
-   - Tapez `:hint` pour obtenir des indices progressifs.
-   - Tapez `:solution` pour afficher la solution officielle si vous êtes bloqué.
-   - Tapez `:back` pour retourner au menu principal.
+---
 
-5. **Sauvegarde automatique** :
-   - Votre progression est conservée dans `data/progress.json`.
-   - Vous pouvez reprendre à tout moment ou réinitialiser votre parcours depuis le menu.
+## 📚 Parcours pédagogique (20 niveaux de A à Z)
+1. **Les Bases** : `SELECT`, colonnes ciblées, alias `AS`, dédoublonnage `DISTINCT`.
+2. **Filtrage** : `WHERE`, comparateurs, `AND`/`OR`, intervalles `BETWEEN`, listes `IN`, motifs `LIKE`, gestion du `NULL`.
+3. **Tri & Pagination** : `ORDER BY`, `LIMIT`, `OFFSET`.
+4. **Agrégations & Groupes** : `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `GROUP BY`, `HAVING`.
+5. **Jointures** : `INNER JOIN`, `LEFT JOIN`, recherche d'enregistrements orphelins.
+6. **Sous-requêtes & Conditions** : Subqueries, `CASE WHEN ... THEN ... ELSE ... END`.
+7. **Concepts Pro Avancés** : Common Table Expressions (`WITH`), fonctions de fenêtrage (`ROW_NUMBER() OVER (...)`).
