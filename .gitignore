@@ -2,3 +2,5 @@ node_modules/
 package-lock.json
 data/
 .DS_Store
+voix.mp4
+sql_master_promo.mp4
