@@ -8,6 +8,8 @@
 > **De Zéro jusqu'aux Triggers & Procédures Stockées directement dans votre terminal !**  
 > Une véritable **Académie SQL interactive** fusionnée avec un **RPG gamifié** : 10 chapitres de cours illustrés avec démos en direct, 35 niveaux progressifs, Combats de Boss, Mode Contre-la-Montre, Boutique de thèmes et Passeport Chiffré Anti-Triche.
 
+![Démo SQL Master RPG](./demo.gif)
+
 ---
 
 ## 🚀 Démarrage rapide
