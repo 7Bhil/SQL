@@ -693,12 +693,13 @@ Exemple :
   },
   {
     id: 25,
-    title: "Évolution de schéma avec ALTER TABLE",
+    title: "👹 BOSS : Migration Critique de Schéma (ALTER TABLE)",
     category: "9. Définition de Schéma (DDL)",
+    isBoss: true,
     lesson: `Quand une table existe déjà en production, on ne la recrée pas : on utilise ALTER TABLE pour ajouter une nouvelle colonne.
 Syntaxe :
   ALTER TABLE utilisateurs ADD COLUMN pays TEXT DEFAULT 'France';`,
-    task: "Ajoutez une nouvelle colonne `actif` de type INTEGER avec la valeur par défaut 1 à la table `comptes`, puis affichez tous les comptes.",
+    task: "🚨 URGENCE PROD : Ajoutez une nouvelle colonne `actif` de type INTEGER avec la valeur par défaut 1 à la table `comptes`, puis affichez tous les comptes.",
     setupSql: `
       CREATE TABLE comptes (
         id INTEGER PRIMARY KEY,
@@ -712,6 +713,309 @@ Syntaxe :
       "Utilisez ALTER TABLE comptes ADD COLUMN actif INTEGER DEFAULT 1;",
       "Puis faites un SELECT * FROM comptes;"
     ]
+  },
+  {
+    id: 26,
+    title: "Création d'une Vue sécurisée avec CREATE VIEW",
+    category: "10. Vues, Index & Transactions",
+    lesson: `Une Vue (VIEW) est une table virtuelle basée sur une requête SELECT.
+Elle permet de masquer des colonnes sensibles (comme un mot de passe ou un salaire secret) tout en donnant accès au reste.
+Syntaxe :
+  CREATE VIEW nom_vue AS SELECT col1, col2 FROM table;`,
+    task: "Créez une vue nommée `annuaire_public` qui sélectionne uniquement `id`, `nom` et `departement` de la table `employes` (sans le salaire ni le numéro de sécu !), puis affichez tout le contenu de `annuaire_public`.",
+    setupSql: `
+      CREATE TABLE employes (
+        id INTEGER PRIMARY KEY,
+        nom TEXT,
+        departement TEXT,
+        salaire REAL,
+        num_secu TEXT
+      );
+      INSERT INTO employes VALUES
+        (1, 'Alice', 'Cyber', 5200, '190012345'),
+        (2, 'Bob', 'Data', 4800, '188054321');
+    `,
+    expectedQuery: "CREATE VIEW annuaire_public AS SELECT id, nom, departement FROM employes; SELECT * FROM annuaire_public;",
+    orderMatters: false,
+    hints: [
+      "Commencez par CREATE VIEW annuaire_public AS SELECT id, nom, departement FROM employes;",
+      "Puis interrogez votre vue : SELECT * FROM annuaire_public;"
+    ]
+  },
+  {
+    id: 27,
+    title: "Optimisation de performance avec CREATE INDEX",
+    category: "10. Vues, Index & Transactions",
+    lesson: `Un Index accélère considérablement les recherches (WHERE / JOIN) sur une colonne très sollicitée.
+Un index UNIQUE garantit en plus qu'aucun doublon ne pourra jamais être inséré.
+Syntaxe :
+  CREATE UNIQUE INDEX idx_nom ON table(colonne);`,
+    task: "Créez un index unique nommé `idx_users_email` sur la colonne `email` de la table `utilisateurs`, puis sélectionnez le `nom` et l'`email` de l'utilisateur ayant l'email 'neo@matrix.io'.",
+    setupSql: `
+      CREATE TABLE utilisateurs (
+        id INTEGER PRIMARY KEY,
+        nom TEXT,
+        email TEXT
+      );
+      INSERT INTO utilisateurs VALUES
+        (1, 'Thomas Anderson', 'neo@matrix.io'),
+        (2, 'Trinity', 'trinity@matrix.io');
+    `,
+    expectedQuery: "CREATE UNIQUE INDEX idx_users_email ON utilisateurs(email); SELECT nom, email FROM utilisateurs WHERE email = 'neo@matrix.io';",
+    orderMatters: false,
+    hints: [
+      "Utilisez CREATE UNIQUE INDEX idx_users_email ON utilisateurs(email);",
+      "Suivi de SELECT nom, email FROM utilisateurs WHERE email = 'neo@matrix.io';"
+    ]
+  },
+  {
+    id: 28,
+    title: "Transactions Atomiques (BEGIN TRANSACTION ... COMMIT)",
+    category: "10. Vues, Index & Transactions",
+    lesson: `Une transaction regroupe plusieurs opérations en un seul bloc atomique (Tout ou Rien).
+Syntaxe :
+  BEGIN TRANSACTION;
+    UPDATE ...;
+    UPDATE ...;
+  COMMIT;`,
+    task: "Réalisez un virement bancaire dans une transaction : déduisez 300 du compte id=1 (Alice) et ajoutez 300 au compte id=2 (Bob) dans la table `banque`. Validez avec COMMIT puis affichez toute la table `banque` triée par id.",
+    setupSql: `
+      CREATE TABLE banque (
+        id INTEGER PRIMARY KEY,
+        titulaire TEXT,
+        solde REAL
+      );
+      INSERT INTO banque VALUES (1, 'Alice', 1000), (2, 'Bob', 400);
+    `,
+    expectedQuery: "BEGIN TRANSACTION; UPDATE banque SET solde = solde - 300 WHERE id = 1; UPDATE banque SET solde = solde + 300 WHERE id = 2; COMMIT; SELECT * FROM banque ORDER BY id;",
+    orderMatters: true,
+    hints: [
+      "Encadrez vos deux UPDATE entre BEGIN TRANSACTION; et COMMIT;",
+      "Terminez par SELECT * FROM banque ORDER BY id;"
+    ]
+  },
+  {
+    id: 29,
+    title: "Automatisation par Déclencheur : CREATE TRIGGER (AFTER UPDATE)",
+    category: "11. Triggers & Automatisation",
+    lesson: `Un Trigger s'exécute automatiquement lorsqu'un événement survient sur une table.
+Dans un trigger AFTER UPDATE, 'OLD.col' vaut l'ancienne valeur et 'NEW.col' vaut la nouvelle valeur.
+Syntaxe :
+  CREATE TRIGGER nom_trigger AFTER UPDATE ON table
+  BEGIN
+    INSERT INTO audit VALUES (OLD.id, OLD.val, NEW.val);
+  END;`,
+    task: "Créez un trigger `trg_audit_prix` (AFTER UPDATE ON produits) qui insère dans `historique_prix` (`produit_id`, `ancien_prix`, `nouveau_prix`) les valeurs `OLD.id`, `OLD.prix`, `NEW.prix`. Ensuite, mettez le prix du produit id=1 à 150, puis affichez `historique_prix`.",
+    setupSql: `
+      CREATE TABLE produits (
+        id INTEGER PRIMARY KEY,
+        nom TEXT,
+        prix REAL
+      );
+      CREATE TABLE historique_prix (
+        produit_id INTEGER,
+        ancien_prix REAL,
+        nouveau_prix REAL
+      );
+      INSERT INTO produits VALUES (1, 'SSD 1TB', 120);
+    `,
+    expectedQuery: `CREATE TRIGGER trg_audit_prix AFTER UPDATE ON produits
+BEGIN
+  INSERT INTO historique_prix VALUES (OLD.id, OLD.prix, NEW.prix);
+END;
+UPDATE produits SET prix = 150 WHERE id = 1;
+SELECT * FROM historique_prix;`,
+    orderMatters: false,
+    hints: [
+      "Créez le trigger avec CREATE TRIGGER trg_audit_prix AFTER UPDATE ON produits BEGIN INSERT INTO historique_prix VALUES (OLD.id, OLD.prix, NEW.prix); END;",
+      "Faites ensuite UPDATE produits SET prix = 150 WHERE id = 1; SELECT * FROM historique_prix;"
+    ]
+  },
+  {
+    id: 30,
+    title: "👹 BOSS : Trigger de Synchronisation des Stocks (AFTER INSERT)",
+    category: "11. Triggers & Automatisation",
+    isBoss: true,
+    lesson: `Les Triggers sont redoutables pour maintenir la cohérence des stocks automatiquement dès qu'une ligne de commande est insérée (AFTER INSERT).
+Dans un AFTER INSERT, on utilise 'NEW.colonne' pour accéder aux valeurs de la commande qui vient d'être créée.`,
+    task: "🚨 BOSS BATTLE : Créez un trigger `trg_maj_stock` (AFTER INSERT ON ventes) qui diminue automatiquement le `stock` de la table `articles` de `NEW.quantite` pour l'article `id = NEW.article_id`. Insérez ensuite une vente `(100, 1, 3)` dans `ventes`, et affichez la table `articles`.",
+    setupSql: `
+      CREATE TABLE articles (
+        id INTEGER PRIMARY KEY,
+        nom TEXT,
+        stock INTEGER
+      );
+      CREATE TABLE ventes (
+        id INTEGER PRIMARY KEY,
+        article_id INTEGER,
+        quantite INTEGER
+      );
+      INSERT INTO articles VALUES (1, 'Carte Graphique RTX', 10), (2, 'Processeur Ryzen', 8);
+    `,
+    expectedQuery: `CREATE TRIGGER trg_maj_stock AFTER INSERT ON ventes
+BEGIN
+  UPDATE articles SET stock = stock - NEW.quantite WHERE id = NEW.article_id;
+END;
+INSERT INTO ventes VALUES (100, 1, 3);
+SELECT * FROM articles;`,
+    orderMatters: false,
+    hints: [
+      "Dans le BEGIN ... END du trigger : UPDATE articles SET stock = stock - NEW.quantite WHERE id = NEW.article_id;",
+      "Puis insérez : INSERT INTO ventes VALUES (100, 1, 3); SELECT * FROM articles;"
+    ]
+  },
+  {
+    id: 31,
+    title: "Requêtes Récursives : WITH RECURSIVE",
+    category: "12. SQL Analytique Expert",
+    lesson: `WITH RECURSIVE permet à une CTE de s'appeler elle-même pour générer des séquences ou parcourir des arbres hiérarchiques.
+Syntaxe :
+  WITH RECURSIVE suite(n) AS (
+    SELECT 1
+    UNION ALL
+    SELECT n + 1 FROM suite WHERE n < 5
+  )
+  SELECT * FROM suite;`,
+    task: "Utilisez `WITH RECURSIVE` pour générer une table temporaire `niveaux(lvl, xp_requis)` allant du niveau 1 (xp_requis = 100) jusqu'au niveau 5, où chaque niveau ajoute 150 XP au précédent (`xp_requis + 150`). Affichez toutes les lignes.",
+    setupSql: `
+      CREATE TABLE config_jeu (version TEXT);
+      INSERT INTO config_jeu VALUES ('1.0');
+    `,
+    expectedQuery: `WITH RECURSIVE niveaux(lvl, xp_requis) AS (
+  SELECT 1, 100
+  UNION ALL
+  SELECT lvl + 1, xp_requis + 150 FROM niveaux WHERE lvl < 5
+)
+SELECT * FROM niveaux;`,
+    orderMatters: true,
+    hints: [
+      "Initialisez avec SELECT 1, 100 UNION ALL SELECT lvl + 1, xp_requis + 150 FROM niveaux WHERE lvl < 5",
+      "Terminez par SELECT * FROM niveaux;"
+    ]
+  },
+  {
+    id: 32,
+    title: "Analyse Temporelle avec LAG() OVER (...)",
+    category: "12. SQL Analytique Expert",
+    lesson: `La fonction de fenêtrage LAG(colonne, 1) OVER (ORDER BY ...) permet de récupérer la valeur de la ligne précédente sans faire de jointure complexe.
+Idéal pour comparer le chiffre d'affaires d'un mois avec celui du mois précédent !`,
+    task: "Affichez le `mois`, le `revenu`, et le revenu du mois précédent (nommé `revenu_precedent`) en utilisant `LAG(revenu, 1) OVER (ORDER BY mois)` depuis la table `finances`.",
+    setupSql: `
+      CREATE TABLE finances (
+        mois INTEGER PRIMARY KEY,
+        revenu REAL
+      );
+      INSERT INTO finances VALUES (1, 10000), (2, 12500), (3, 11800), (4, 15000);
+    `,
+    expectedQuery: "SELECT mois, revenu, LAG(revenu, 1) OVER (ORDER BY mois) AS revenu_precedent FROM finances;",
+    orderMatters: true,
+    hints: [
+      "Utilisez LAG(revenu, 1) OVER (ORDER BY mois) AS revenu_precedent.",
+      "Syntaxe : SELECT mois, revenu, LAG(revenu, 1) OVER (ORDER BY mois) AS revenu_precedent FROM finances;"
+    ]
+  },
+  {
+    id: 33,
+    title: "Créer sa première Procédure Stockée (CREATE PROCEDURE & CALL)",
+    category: "13. Procédures Stockées",
+    lesson: `Une Procédure Stockée encapsule une logique métier paramétrée directement sur le serveur SQL :
+  CREATE PROCEDURE nom_proc(p_id INT, p_val REAL)
+  BEGIN
+    UPDATE table SET col = col + p_val WHERE id = p_id;
+  END;
+Et on l'exécute avec :
+  CALL nom_proc(1, 50);`,
+    task: "Créez une procédure stockée `crediter_joueur(j_id INT, points INT)` qui ajoute `points` au `score` du joueur ayant `id = j_id` dans la table `joueurs`. Appelez-la ensuite avec `CALL crediter_joueur(2, 500);` puis affichez toute la table `joueurs` triée par id.",
+    setupSql: `
+      CREATE TABLE joueurs (
+        id INTEGER PRIMARY KEY,
+        pseudo TEXT,
+        score INTEGER
+      );
+      INSERT INTO joueurs VALUES (1, 'Shadow', 1200), (2, 'Kira', 900);
+    `,
+    expectedQuery: `CREATE PROCEDURE crediter_joueur(j_id INT, points INT)
+BEGIN
+  UPDATE joueurs SET score = score + points WHERE id = j_id;
+END;
+CALL crediter_joueur(2, 500);
+SELECT * FROM joueurs ORDER BY id;`,
+    orderMatters: true,
+    hints: [
+      "Déclarez CREATE PROCEDURE crediter_joueur(j_id INT, points INT) BEGIN UPDATE joueurs SET score = score + points WHERE id = j_id; END;",
+      "Puis appelez CALL crediter_joueur(2, 500); suivi de SELECT * FROM joueurs ORDER BY id;"
+    ]
+  },
+  {
+    id: 34,
+    title: "Procédure Stockée Multi-Opérations (Traitement de Commande)",
+    category: "13. Procédures Stockées",
+    lesson: `Tout l'intérêt d'une procédure stockée est d'exécuter plusieurs requêtes (UPDATE, INSERT, DELETE) en un seul appel CALL.
+Dans le bloc BEGIN ... END;, vous pouvez enchaîner autant d'instructions SQL que nécessaire, séparées par un point-virgule.`,
+    task: "Créez une procédure `valider_achat(p_id INT, qte INT)` qui : 1) diminue le `stock` de `produits` de `qte` pour `id = p_id`, et 2) insère dans `journal_achats(produit_id, quantite)` les valeurs `(p_id, qte)`. Exécutez `CALL valider_achat(1, 4);` puis affichez `produits`.",
+    setupSql: `
+      CREATE TABLE produits (
+        id INTEGER PRIMARY KEY,
+        nom TEXT,
+        stock INTEGER
+      );
+      CREATE TABLE journal_achats (
+        produit_id INTEGER,
+        quantite INTEGER
+      );
+      INSERT INTO produits VALUES (1, 'Serveur Rack', 10), (2, 'Switch Fibre', 15);
+    `,
+    expectedQuery: `CREATE PROCEDURE valider_achat(p_id INT, qte INT)
+BEGIN
+  UPDATE produits SET stock = stock - qte WHERE id = p_id;
+  INSERT INTO journal_achats (produit_id, quantite) VALUES (p_id, qte);
+END;
+CALL valider_achat(1, 4);
+SELECT * FROM produits;`,
+    orderMatters: false,
+    hints: [
+      "Mettez l'UPDATE et l'INSERT à l'intérieur du bloc BEGIN ... END; de la procédure.",
+      "Appelez ensuite CALL valider_achat(1, 4); SELECT * FROM produits;"
+    ]
+  },
+  {
+    id: 35,
+    title: "🐉 BOSS FINAL : Architecture Complète (Trigger + Procédure Stockée)",
+    category: "13. Procédures Stockées",
+    isBoss: true,
+    lesson: `Vous voici devant le Boss Final de SQL Master !
+Pour décrocher le titre de Grand Maître, vous allez combiner dans une seule architecture :
+1. Un Trigger automatique de surveillance (AFTER UPDATE).
+2. Une Procédure Stockée métier (CREATE PROCEDURE + CALL).`,
+    task: "🐉 BOSS FINAL : 1) Créez un trigger `trg_alerte_vip` (AFTER UPDATE ON clients) qui insère `(NEW.id, 'PASSAGE VIP')` dans `alertes` lorsque `NEW.solde >= 5000`. 2) Créez une procédure `deposer_fonds(c_id INT, montant REAL)` qui ajoute `montant` au `solde` du client `id = c_id`. 3) Appelez `CALL deposer_fonds(1, 3500);` et affichez la table `alertes` !",
+    setupSql: `
+      CREATE TABLE clients (
+        id INTEGER PRIMARY KEY,
+        nom TEXT,
+        solde REAL
+      );
+      CREATE TABLE alertes (
+        client_id INTEGER,
+        message TEXT
+      );
+      INSERT INTO clients VALUES (1, 'Sarah', 2000), (2, 'Marc', 800);
+    `,
+    expectedQuery: `CREATE TRIGGER trg_alerte_vip AFTER UPDATE ON clients
+BEGIN
+  INSERT INTO alertes SELECT NEW.id, 'PASSAGE VIP' WHERE NEW.solde >= 5000;
+END;
+CREATE PROCEDURE deposer_fonds(c_id INT, montant REAL)
+BEGIN
+  UPDATE clients SET solde = solde + montant WHERE id = c_id;
+END;
+CALL deposer_fonds(1, 3500);
+SELECT * FROM alertes;`,
+    orderMatters: false,
+    hints: [
+      "Astuce pour le trigger ou l'insert : INSERT INTO alertes VALUES (NEW.id, 'PASSAGE VIP'); fonctionne aussi puisque Sarah passera à 5500 (>= 5000) !",
+      "Enchaînez CREATE TRIGGER ... END; puis CREATE PROCEDURE ... END; puis CALL deposer_fonds(1, 3500); SELECT * FROM alertes;"
+    ]
   }
 ];
+
 

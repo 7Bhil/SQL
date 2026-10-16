@@ -1,74 +1,80 @@
-# 🏆 SQL Master CLI
+# 🏆 SQL Master : Ultimate Academy & RPG
 
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
 [![Node: >=18](https://img.shields.io/badge/Node-%3E%3D18-brightgreen.svg)](https://nodejs.org/)
-[![SQLite: In--Memory](https://img.shields.io/badge/Database-SQLite%20(sql.js)-orange.svg)](https://github.com/sql-js/sql.js)
+[![SQLite: In--Memory](https://img.shields.io/badge/Database-SQLite%20%2B%20Stored%20Procedures-orange.svg)](https://github.com/sql-js/sql.js)
 [![Stars](https://img.shields.io/github/stars/7Bhil/SQL.git?style=social)](https://github.com/7Bhil/SQL.git)
 
-> **Maîtrisez SQL de A à Z directement dans votre terminal !**  
-> Une application CLI gamifiée, interactive et complète avec 25 niveaux progressifs, moteur SQLite embarqué, navigation au clavier, système de comptes, trophées et clé chiffrée anti-triche prête pour le Leaderboard.
+> **De Zéro jusqu'aux Triggers & Procédures Stockées directement dans votre terminal !**  
+> Une véritable **Académie SQL interactive** fusionnée avec un **RPG gamifié** : 10 chapitres de cours illustrés avec démos en direct, 35 niveaux progressifs, Combats de Boss, Mode Contre-la-Montre, Boutique de thèmes et Passeport Chiffré Anti-Triche.
 
 ---
 
-## 🚀 Démarrage en 1 seconde
+## 🚀 Démarrage rapide
 
 ```bash
-# Cloner le dépôt
+# 1. Cloner le dépôt
 git clone https://github.com/7Bhil/SQL.git
 cd SQL
 
-# Installer les dépendances
+# 2. Installer les dépendances
 npm install
 
-# Lancer l'aventure
+# 3. Lancer l'aventure
 npm start
 ```
 
 ---
 
-## ✨ Fonctionnalités phares
+## 🌟 Ce qui rend SQL Master unique
 
-- **⌨️ Expérience Terminal de Pro** :
-  - **Touche `Échap` (`ESC`)** : retour instantané en arrière à tout moment.
-  - **Flèches `Haut ⬆` et `Bas ⬇`** : navigation dans l'historique de vos requêtes comme sous `bash` ou `psql`.
-  - **Saisie Multi-Lignes** : appuyez sur `Entrée` pour sauter une ligne, terminez par `;` pour exécuter.
-- **👀 Aperçu automatique des Tables & Schémas** :
-  - Avant chaque consigne, toutes les tables impliquées et leurs premières lignes de données sont inspectées et affichées sous forme de tableau CLI clair.
-- **🏅 Système de Trophées & Badges** :
-  - 🐣 *Premier Pas SQL*
-  - 🔍 *Ninja du Filtrage*
-  - 🔗 *Maître des Jointures*
-  - ⚡ *Éclair de Génie* (résolution en moins de 10 secondes)
-  - 👑 *Grand Maître SQL* (terminer les 25 niveaux)
-- **📊 Progression & Statistiques en direct** :
-  - Barre de progression visuelle : `[████████░░░░░░░░░░░░░░░░░] 32%`.
-  - Nombre total de requêtes tentées, chronomètre et indices utilisés.
-- **🔐 Clé Chiffrée Anti-Triche (Passeport Leaderboard)** :
-  - Chiffrement **AES-256-CBC** avec signature d'intégrité **HMAC-SHA256**.
-  - Clé portable contenant scores et niveaux validés, infalsifiable à la main.
-- **🔓 Mode Sandbox (Accès Libre)** :
-  - Code secret : **`0000`**
-  - Permet de sauter immédiatement vers n'importe lequel des 25 niveaux sans bloquer.
+### 1. 📚 L'Académie SQL Interactive (10 Chapitres de Cours de A à Z)
+Accessible avec ou sans compte ! Chaque chapitre propose :
+- Des **cours complets illustrés en schémas ASCII** (comprendre visuellement un `INNER JOIN` vs `LEFT JOIN`, ou le flux d'un `GROUP BY` / `HAVING`).
+- Un bouton **"▶ Exécuter la démo interactive en direct"** pour voir la requête tourner sous vos yeux.
+- Un raccourci **`:cours`** utilisable à tout moment au milieu d'un exercice en cas d'oubli !
+
+### 2. ⚙️ Moteur SQL Pro : jusqu'aux Triggers & Procédures Stockées (35 Niveaux)
+Contrairement aux tutoriels basiques qui s'arrêtent au `SELECT`, SQL Master embarque un **transpileur de Procédures Stockées (`CREATE PROCEDURE ... BEGIN ... END;` & `CALL`)** :
+- Créez des Vues sécurisées (`CREATE VIEW`).
+- Optimisez avec des Index (`CREATE INDEX`).
+- Gérez des virements bancaires atomiques (`BEGIN TRANSACTION ... COMMIT`).
+- Automatisez des tables d'audit et des stocks avec des Déclencheurs (`CREATE TRIGGER AFTER INSERT / UPDATE`).
+- Programmez et appelez vos propres **Procédures Stockées (`CREATE PROCEDURE` & `CALL`)** !
+
+### 3. 🎮 Gamification RPG Complète
+- **Rangs Évolutifs (Rang F ➔ Rang S)** : progressez de *Stagiaire Data 🐣* jusqu'à *Dieu Vivant du SQL 🐉*.
+- **Combats de Boss 👹** : tous les 5 niveaux, affrontez un scénario d'urgence en production avec **XP et SQL Coins doublés (x2)** !
+- **Combo Streak 🔥 & Bonus Sans-Faute** : enchaînez les réussites du premier coup pour multiplier vos gains (`x1.5`).
+- **Boutique RPG & Thèmes Visuels 🛒** : dépensez vos **SQL Coins 💰** pour débloquer les thèmes *Matrix Hacker 🟢*, *Dracula Dark 🧛*, *Empereur Gold 👑* ou des *Jetons d'Indice Gratuits*.
+- **Mode Contre-la-Montre (Time Attack 60s) ⚡** : résolvez un maximum de défis express en 60 secondes.
+
+### 4. 🔐 Passeport Chiffré Anti-Triche & Mode Sandbox (`0000`)
+- **Passeport Leaderboard (`SQLPASS...`)** : votre profil est exportable sous forme de clé chiffrée **AES-256-CBC + HMAC-SHA256** infalsifiable.
+- **Mode Sandbox (`0000`)** : tapez le code secret `0000` pour déverrouiller instantanément les 35 niveaux sans contrainte.
 
 ---
 
-## 📚 Parcours de A à Z (25 Niveaux)
+## 🗺️ Programme des 35 Niveaux & 10 Chapitres
 
-| Niveaux | Module | Notions clés abordées |
+| Niveaux | Chapitre Académie | Compétences maîtrisées |
 |---|---|---|
-| **1 - 3** | **1. Les Bases** | `SELECT`, projection de colonnes, alias `AS`, `DISTINCT` |
-| **4 - 8** | **2. Filtrage & Conditions** | `WHERE`, opérateurs (`=, >, <=`), `AND`/`OR`, `BETWEEN`, `IN`, `LIKE`, `IS NULL` |
-| **9 - 10** | **3. Tri & Pagination** | `ORDER BY (ASC/DESC)`, `LIMIT`, `OFFSET` |
-| **11 - 13** | **4. Agrégations & Groupes** | `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `GROUP BY`, `HAVING` |
-| **14 - 16** | **5. Les Jointures** | `INNER JOIN`, `LEFT JOIN`, détection d'orphelins avec `IS NULL` |
-| **17 - 18** | **6. Sous-requêtes & Logique** | Sous-requêtes dans `WHERE` (`Subqueries`), `CASE WHEN ... THEN ... END` |
-| **19 - 20** | **7. Concepts Avancés** | CTE (`WITH`), Fonctions de Fenêtrage (`ROW_NUMBER() OVER (...)`) |
-| **21 - 23** | **8. Modification de Données (DML)** | `INSERT INTO`, `UPDATE ... WHERE`, `DELETE FROM ... WHERE` |
-| **24 - 25** | **9. Définition de Schéma (DDL)** | `CREATE TABLE` (types & contraintes), `ALTER TABLE ADD COLUMN` |
+| **1 - 3** | **Chapitre 1 : Les Bases** | `SELECT`, colonnes ciblées, alias `AS`, `DISTINCT` |
+| **4 - 8** | **Chapitre 2 : Filtrage** | `WHERE`, `AND`/`OR`, `BETWEEN`, `IN`, `LIKE`, `IS NULL` |
+| **9 - 10** | **Chapitre 3 : Tri & Pagination** | `ORDER BY (ASC/DESC)`, `LIMIT`, `OFFSET` |
+| **11 - 13** | **Chapitre 4 : Agrégations** | `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `GROUP BY`, `HAVING` |
+| **14 - 16** | **Chapitre 5 : Jointures** | `INNER JOIN`, `LEFT JOIN`, détection d'orphelins |
+| **17 - 18** | **Chapitre 6 : Sous-requêtes** | `Subqueries` imbriquées, `CASE WHEN ... THEN ... ELSE ... END` |
+| **19 - 20** | **Chapitre 7 : SQL Moderne** | `CTE (WITH)`, Fenêtrage `ROW_NUMBER() OVER (PARTITION BY ...)` |
+| **21 - 25** | **Chapitre 8 : DML & DDL** | `INSERT INTO`, `UPDATE`, `DELETE`, `CREATE TABLE`, `ALTER TABLE` |
+| **26 - 28** | **Chapitre 9 : Administration** | `CREATE VIEW`, `CREATE UNIQUE INDEX`, `BEGIN TRANSACTION / COMMIT` |
+| **29 - 30** | **Chapitre 10A : Triggers** | `CREATE TRIGGER (AFTER UPDATE / AFTER INSERT)`, `OLD` & `NEW` |
+| **31 - 32** | **Chapitre 7B : Analytique Pro** | Récursivité `WITH RECURSIVE`, décalage temporel `LAG() OVER (...)` |
+| **33 - 35** | **Chapitre 10B : Procédures** | `CREATE PROCEDURE (...) BEGIN ... END;`, `CALL`, Architecture Boss Final |
 
 ---
 
 ## ⭐ Soutenez le projet !
 
-Si vous appréciez ce projet ou qu'il vous a aidé à progresser en SQL :
-👉 **Laissez une étoile (Star ⭐) sur le [dépôt GitHub](https://github.com/7Bhil/SQL.git) !** Cela aide énormément à faire grandir le projet.
+Si ce projet vous plaît ou vous aide à maîtriser SQL :
+👉 **Pensez à laisser une étoile (Star ⭐) en haut à droite sur [GitHub](https://github.com/7Bhil/SQL.git) !**
